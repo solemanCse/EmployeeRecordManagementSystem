@@ -1,0 +1,229 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link href="~/Content/toastr.min.css" rel="stylesheet" />
+<div class="container">
+
+    <div class="row" style="border: 1px solid gainsboro;">
+        <div style="padding: 20px 0px 20px 20px; background: gainsboro; font-size: 18px; font-weight: bold; font-weight:bold; margin-bottom:20px;">Employee Entry UI</div>
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <!--Record Entry Area Start From Here-->
+            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                <div style="padding:5px;">
+                    <div class="row">
+                        <div style="padding: 10px 10px 10px 4px; background-color: gainsboro; font-size: 15px; font-weight: bold;">Record Entry</div>
+                        <input type="text" id="txtId" name="txtId" class="form-control" placeholder="Enter fisrt name" style="display:none;" />
+                    </div>
+                    <div class="row">
+                        <span>First Name:</span>
+                        <input type="text" id="txtFirstName" name="txtFirstName" class="form-control" placeholder="Enter fisrt name" maxlength="50" />
+                    </div>
+                    <div class="row">
+                        <span>Middle Name:</span>
+                        <input type="text" id="txtMiddleName" name="txtMiddleName" class="form-control" placeholder="Enter middle name" maxlength="50" />
+                    </div>
+                    <div class="row">
+                        <span>Last Name:</span>
+                        <input type="text" id="txtLastName" name="txtLastName" class="form-control" placeholder="Enter last name" maxlength="50" />
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="margin-top: 10px; padding: 0px;">
+                            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12" style="padding-left: 0px;">
+                                <button type="button" id="btnSave" name="btnSave" class="btn btn-success" style="width:100%;" onclick="fnSaveRecord()"><i class="fa fa-save"></i>&nbsp; Save Record</button>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12" style="padding-right: 0px;">
+                                <button type="button" id="btnClear" name="btnClear" class="btn btn-secondary" style="width:100%;" onclick="fnReloadRecord()">
+                                    <i class="fa fa-refresh" aria-hidden="true"></i> &nbsp; Reload
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--Record Entry Area End At Here-->
+            <!--Record List Start From Here-->
+            <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
+                <div style="padding:5px;">
+                    <div class="row">
+                        <table class="table table-bordered" id="tblRecord" style="padding-left: 9px;margin-left: 9px;">
+                            <thead>
+                                <tr style="background-color:#009688; color:#fff;">
+                                    <th title="First Name">
+                                        <label>First Name</label>
+                                    </th>
+                                    <th title="Middle Name">
+                                        <label>Middle Name</label>
+                                    </th>
+                                    <th title="Last Name">
+                                        <label>Last Name</label>
+                                    </th>
+                                    <th title="Edit">
+                                        <label>Edit</label>
+                                    </th>
+                                    <th title="Delete">
+                                        <label>Delete</label>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody style="background-color:#fff;"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!--Record List End At Here-->
+        </div>
+    </div>
+</div>
+
+
+<script src="~/Scripts/jquery-3.4.1.js"></script>
+<script src="~/Scripts/toastr.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        debugger
+        fnReset();//Reload Csutomer Information
+    });
+
+    function fnReset() {
+        document.getElementById("txtId").value = "0"; //Set O (Zero) as default value on ID Field cause it use dusring Save O Update
+        document.getElementById("txtFirstName").value = "";//Clear First Name
+        document.getElementById("txtMiddleName").value = "";//Clear Middle Name
+        document.getElementById("txtLastName").value = "";//Clear Last Name
+        document.getElementById("txtFirstName").focus();//Set Focus/Cutsor on First Name
+        fnGetAllEmployeeRecord();//Get All Employee Information and bind on Html Table
+    }
+    function fnGetAllEmployeeRecord() {
+        var urlpath = '@Url.Action("GetAllEmployee", "Employee")';//Make URL To Get All Employee Record From Employee Controller Using GetAllEmployee Action
+        $.ajax({
+            url: urlpath,
+            type: "GET",
+            data: {},
+            dataType: 'json',
+            success: function (response, status, jqXHR) {
+                debugger
+                html = '';
+                for (var i = 0; i < response.Data.length; i++) {//Check Return Data If Data Lenght more then zero then bind html
+                    var fName = "";//Set Empty On This Variable
+                    var mName = "";//Set Empty On This Variable
+                    var lName = "";//Set Empty On This Variable
+                    if (response.Data[i].FirstName != null) {//Check First Name Is Null Or Not
+                        fName = response.Data[i].FirstName;//If Frist NameNot Null Then Set First Name
+                    }
+                    if (response.Data[i].MiddleName != null) {//Check Middle Name Is Null Or Not
+                        mName = response.Data[i].MiddleName;//If Middle Name Not Null Then Set First Name
+                    }
+                    if (response.Data[i].LastName != null) {//Check Last Name Is Null Or Not
+                        lName = response.Data[i].LastName;//If Last Name Not Null Then Set First Name
+                    }
+                    var EmpId = btoa(response.Data[i].Id);//Encode Id
+                    html += '<tr>';//Conconnect tr on html variable
+                    html += '<td>' + fName + '</td>';//Conconnect First Name using td on html variable
+                    html += '<td>' + mName + '</td>';//Conconnect Middle Name using td on html variable
+                    html += '<td>' + lName + '</td>';//Conconnect Last Name using td on html variable
+                    html += '<td><button type="button" id="btnEdit" name="btnEdit" class="btn btn-secondary" style="width:95%;" onclick=fnEdit(\'' + EmpId + '\')><i class="fa fa-edit"></i>&nbsp;Edit </button></td>';//Conconnect Edit Action With Function Name fnEdit with Employee Id as perameter using td on html variable
+                    html += '<td><button type="button" id="btnDelete" name="btnDelete" class="btn btn-danger" style="width:95%;" onclick=fnDelete(\'' + EmpId + '\')><i class="fa fa-minus-circle"></i>&nbsp;Delete</button></td>';//Conconnect Delete Action With Function Name fnDelete with Employee Id as perameter using td on html variable
+                    html += '</tr>';//Conconnect tr on html variable
+                }
+                $("#tblRecord").find('tbody').html(html);//Append html variable On tblRecord tbody
+            },
+            error: function (jqXHR, status, error) {
+                var err = jqXHR.responseText;
+                err = err.substring(err.indexOf("<title>"), err.indexOf("<meta")).replace('<title>', '').replace('<meta', '');
+                toastr["warning"](err);
+            }
+        });
+    }
+
+    function fnEdit(EmpId) {
+        EmpId = atob(EmpId);//Decode Employee Id 
+        var urlpath = '@Url.Action("GetSpecificEmployee", "Employee")';//Make URL To Get Specific Employee Record From Employee Controller Using GetSpecificEmployee Action for edit
+        $.ajax({
+            url: urlpath,
+            type: "GET",
+            data: { Id: EmpId},//Set Perameter
+            dataType: 'json',
+            success: function (response, status, jqXHR) {
+
+                document.getElementById("txtId").value = response.Data.Id;//Set Id On Id Text Box
+                document.getElementById("txtFirstName").value = response.Data.FirstName;//Set First Name On First Name Text Box
+                document.getElementById("txtMiddleName").value = response.Data.MiddleName;//Set Middle Name On Middle Name Text Box
+                document.getElementById("txtLastName").value = response.Data.LastName;//Set Last Name On Last Name Text Box
+                document.getElementById("txtFirstName").focus();//Set Focus/Cutsor on First Name
+            },
+            error: function (jqXHR, status, error) {
+                var err = jqXHR.responseText;
+                err = err.substring(err.indexOf("<title>"), err.indexOf("<meta")).replace('<title>', '').replace('<meta', '');
+                toastr["warning"](err);
+            }
+        });
+    }
+    function fnDelete(EmpId) {
+        EmpId = atob(EmpId);//Decode Employee Id 
+        var r = confirm("Employee Record!\nAre you sure to delete this record ?.");//Show Confirmation Message before delete
+        if (r == true) {//If Press Yes Then Go For Delete
+            var urlpath = '@Url.Action("DeleteEmployee", "Employee")';//Make URL To Delete Specific Employee Record From Employee Controller Using DeleteEmployee Action
+            $.ajax({
+                url: urlpath,
+                type: "POST",
+                data: { Id: EmpId },//Set Perameter
+                dataType: 'json',
+                success: function (response, status, jqXHR) {
+                    debugger
+                    toastr["success"]("Delete Successfully");//After Delete Show Sucess Message
+                    fnReset();//Reload All Information
+                },
+                error: function (jqXHR, status, error) {
+                    var err = jqXHR.responseText;
+                    err = err.substring(err.indexOf("<title>"), err.indexOf("<meta")).replace('<title>', '').replace('<meta', '');
+                    toastr["warning"](err);
+                }
+            });
+        }
+    }
+    function fnSaveRecord() {
+        var urlpath = '@Url.Action("SaveOrUpdateEmployee", "Employee")';//Make URL To Save  Employee Record From Employee Controller Using SaveOrUpdateEmployee Action
+        var regex = /^[A-Za-z0-9 ]+$/ //Set Regex
+        if (!document.getElementById("txtFirstName").value.replace(/\s/g, "")) {//Check Is First Name Containe White Space
+            toastr["warning"]("First Name is required!");//If Contain White Space Then Show Message
+            document.getElementById("txtFirstName").focus();//Set Focus On First Name
+        } 
+        else if (!document.getElementById("txtLastName").value.replace(/\s/g, "")) {//Check Is Last Name Containe White Space
+            toastr["warning"]("Last Name is required!");//If Contain White Space Then Show Message
+            document.getElementById("txtLastName").focus();//Set Focus On Last Name
+        }
+        else if (!regex.test(document.getElementById("txtFirstName").value))//Check Input is not valid Regex
+        {
+            toastr["warning"]("Invalid Input, Contains Special Characters.");//Show Message
+            document.getElementById("txtFirstName").focus();//Set Focus On Last Name
+        } 
+        else if (!regex.test(document.getElementById("txtLastName").value)) {//Check Input is not valid Regex
+            toastr["warning"]("Invalid Input, Contains Special Characters.");//Show Message
+            document.getElementById("txtLastName").focus();//Set Focus On Last Name
+        }
+        else {
+            $.ajax({
+                url: urlpath,
+                type: "POST",
+                data: { Id: document.getElementById("txtId").value, FirstName: document.getElementById("txtFirstName").value, MiddleName: document.getElementById("txtMiddleName").value, LastName: document.getElementById("txtLastName").value },//Set Perameter
+                dataType: 'json',
+                success: function (response, status, jqXHR) {
+                    debugger
+                    toastr["success"]("Save Successfully");//After Save Show Sucess Message
+                    fnReset();//Reload All Information
+                },
+                error: function (jqXHR, status, error) {
+                    var err = jqXHR.responseText;
+                    err = err.substring(err.indexOf("<title>"), err.indexOf("<meta")).replace('<title>', '').replace('<meta', '');
+                    toastr["warning"](err);
+                }
+            });
+        }
+    }
+    function fnReloadRecord() {
+        fnReset();
+    }
+</script>
+
